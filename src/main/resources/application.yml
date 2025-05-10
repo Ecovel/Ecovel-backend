@@ -4,6 +4,10 @@ ai:
     carbon-url: http://localhost:8000/ai/carbon/estimate
     verify-image-url: http://your-ai-server.com/ai/verify-image
 
+server:
+  port: 8080
+
+
 spring:
   datasource:
     url: jdbc:mysql://34.60.22.8:3306/ecovel
