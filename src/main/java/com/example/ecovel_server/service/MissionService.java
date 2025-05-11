@@ -64,20 +64,14 @@ public class MissionService {
                 .day(day)
                 .placeId(placeId)
                 .imageUrl(imageUrl) //사용자가 업로드한 셀카
-                .verified(aiResult.isPlaceMatch() && aiResult.isFaceMatch())
-                .faceMatch(aiResult.isFaceMatch())        // 추가
-                .placeMatch(aiResult.isPlaceMatch())      // 추가
-                .reason(aiResult.getMessage())
+                .result(aiResult.getResult())
                 .verifiedAt(LocalDateTime.now())
                 .build();
         missionReportRepository.save(report);
 
         // 6. 결과 반환
         return MissionResultResponse.builder()
-                .verified(report.isVerified())
-                .faceMatch(aiResult.isFaceMatch())      // 추가
-                .placeMatch(aiResult.isPlaceMatch())    // 추가
-                .message(report.getReason())
+                .result(report.getResult())
                 .imageUrl(report.getImageUrl())
                 .build();
     }
@@ -91,10 +85,7 @@ public class MissionService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 날짜와 장소에 대한 인증 결과가 없습니다."));
 
         return MissionResultResponse.builder()
-                .verified(report.isVerified())
-                .faceMatch(report.isFaceMatch())      // 추가
-                .placeMatch(report.isPlaceMatch())    // 추가
-                .message(report.getReason())
+                .result(report.getResult())
                 .imageUrl(report.getImageUrl())
                 .build();
     }
@@ -107,10 +98,7 @@ public class MissionService {
         List<MissionReport> reports = missionReportRepository.findByTravelPlan(plan);
 
         return reports.stream().map(report -> MissionResultResponse.builder()
-                .verified(report.isVerified())
-                .faceMatch(report.isFaceMatch())      // 추가
-                .placeMatch(report.isPlaceMatch())    // 추가
-                .message(report.getReason())
+                .result(report.getResult())
                 .imageUrl(report.getImageUrl())
                 .build()).toList();
     }

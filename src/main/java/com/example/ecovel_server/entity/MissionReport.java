@@ -31,11 +31,7 @@ public class MissionReport {
 
     private String imageUrl;        // 업로드한 이미지의 URL
 
-    private boolean verified;       // AI 인증 성공 여부
-    private boolean faceMatch;
-    private boolean placeMatch;
-
-    private String reason;          // 실패 이유 (ex: 얼굴 없음, 장소 불일치)
+    private String result; // 성공 여부
 
     private LocalDateTime verifiedAt; // 인증 완료 시각
 }

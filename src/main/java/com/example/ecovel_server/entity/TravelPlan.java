@@ -25,6 +25,7 @@ public class TravelPlan {
 
     private LocalDate startDate;
 
+    private String thumbnail;
     private String city;         // 선택된 시도
     private String district;     // 선택된 구/군
     private String duration;

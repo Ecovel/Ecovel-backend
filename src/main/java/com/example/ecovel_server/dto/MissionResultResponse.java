@@ -8,11 +8,9 @@ import lombok.Data;
 public class MissionResultResponse {
     private int day;
     private String placeId;
-    private boolean verified; //성공 여부
-    private boolean faceMatch;   // 추가
-    private boolean placeMatch;  // 추가
-    private String message;
-    private String imageUrl;
+    private String result; //성공 여부
+    //private String message;
+    private String imageUrl; //사용자가 업로드한 이미지
 
     // 프론트 응답용: "DAY N" 포맷으로 보여주기
     public String getDay() {

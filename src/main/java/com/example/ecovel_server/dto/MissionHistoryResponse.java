@@ -10,11 +10,7 @@ import lombok.Data;
 public class MissionHistoryResponse {
     private int day;
     private String placeId;
-    private boolean verified;
-    private boolean faceMatch;   // 추가
-    private boolean placeMatch;  // 추가
-    private String imageUrl;
-    private String message;
+    private String result;
     private String verifiedAt; // ISO format 또는 yyyy-MM-dd HH:mm
 
     // 프론트 응답용: "DAY N" 포맷으로 보여주기

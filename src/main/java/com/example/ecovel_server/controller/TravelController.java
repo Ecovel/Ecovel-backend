@@ -49,6 +49,7 @@ public class TravelController {
         }
     }
 
+
     // 4. 시/도별 구 목록 조회
     @GetMapping("/districts")
     public ResponseEntity<ApiResponse<DistrictResponse>> getDistricts(@RequestParam String city) {

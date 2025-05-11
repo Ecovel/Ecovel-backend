@@ -78,6 +78,7 @@ public class TravelService {
                 TravelPlace place = placeRepo.save(
                         TravelPlace.builder()
                                 .name(aiPlace.getName())
+                                .imageUrl(aiPlace.getImageUrl())
                                 .walkTime(aiPlace.getWalkTime())
                                 .bicycleTime(aiPlace.getBicycleTime())
                                 .publicTime(aiPlace.getPublicTime())
@@ -88,6 +89,7 @@ public class TravelService {
 
                 placeDtos.add(TravelPlaceDto.builder()
                         .name(place.getName())
+                        .imageUrl(place.getImageUrl())
                         .walkTime(place.getWalkTime())
                         .bicycleTime(place.getBicycleTime())
                         .publicTime(place.getPublicTime())
@@ -103,6 +105,8 @@ public class TravelService {
 
         // 5. 응답 DTO 구성
         return TravelRecommendResponse.builder()
+                .planId(plan.getId()) // ← 여기에 추가
+                .thumbnail(plan.getThumbnail())
                 .city(plan.getCity())
                 .district(plan.getDistrict())
                 .duration(plan.getDuration())
@@ -136,6 +140,7 @@ public class TravelService {
             for (TravelPlace place : placeRepo.findBySchedule(schedule)) {
                 placeDtos.add(TravelPlaceDto.builder()
                         .name(place.getName())
+                        .imageUrl(place.getImageUrl())
                         .walkTime(place.getWalkTime())
                         .bicycleTime(place.getBicycleTime())
                         .publicTime(place.getPublicTime())
@@ -150,6 +155,8 @@ public class TravelService {
         }
 
         return TravelRecommendResponse.builder()
+                .planId(plan.getId()) // ← 여기에 추가
+                .thumbnail(plan.getThumbnail())
                 .city(plan.getCity())
                 .district(plan.getDistrict())
                 .duration(plan.getDuration())

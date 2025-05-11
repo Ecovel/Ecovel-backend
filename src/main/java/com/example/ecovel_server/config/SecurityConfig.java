@@ -73,7 +73,9 @@ public class SecurityConfig {
                                 "/api/ai/image",
                                 "/api/ai/carbon/estimate",
                                 "/api/ai/carbon/coefficients",
-                                "/hello"
+                                "/hello",
+                                "/travel/districts",
+                                "/travel/options"
                         ).permitAll()
 
                         // 그 외 모든 요청은 인증 필요
