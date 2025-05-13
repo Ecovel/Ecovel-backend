@@ -1,8 +1,10 @@
 package com.example.ecovel_server.controller;
 
 import com.example.ecovel_server.dto.*;
+import com.example.ecovel_server.repository.UserRepository;
 import com.example.ecovel_server.service.TravelService;
 import com.example.ecovel_server.entity.TravelStatus;
+import com.example.ecovel_server.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,12 +17,21 @@ import java.util.List;
 public class TravelController {
 
     private final TravelService travelService;
+    private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
     // 1. 여행 추천
     @PostMapping("/recommend")
-    public ResponseEntity<ApiResponse<TravelRecommendResponse>> recommend(@RequestBody TravelRecommendRequest request) { //dto의 요청/응답 파일
+    public ResponseEntity<ApiResponse<TravelRecommendResponse>> recommend(
+            @RequestBody TravelRecommendRequest request,
+            @RequestHeader("Authorization") String token) {
         try {
-            TravelRecommendResponse response = travelService.recommendTravelPlan(request); //service의 함수 호출
+            String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
+            Long userId = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("사용자 없음"))
+                    .getId();
+
+            TravelRecommendResponse response = travelService.recommendTravelPlan(request, userId);
             return ResponseEntity.ok(ApiResponse.success(response));
         } catch (Exception e) {
             return ResponseEntity.ok(ApiResponse.error(e.getMessage()));
@@ -86,9 +97,16 @@ public class TravelController {
 
     // 5. 즐겨찾기 추가
     @PostMapping("/favorites")
-    public ResponseEntity<ApiResponse<String>> addFavorite(@RequestParam Long planId) {
+    public ResponseEntity<ApiResponse<String>> addFavorite(
+            @RequestHeader("Authorization") String token,
+            @RequestParam Long planId) {
         try {
-            travelService.addFavorite(planId);
+            String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
+            Long userId = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("사용자 없음"))
+                    .getId();
+
+            travelService.addFavorite(planId, userId);
             return ResponseEntity.ok(ApiResponse.success("즐겨찾기 추가 완료"));
         } catch (Exception e) {
             return ResponseEntity.ok(ApiResponse.error(e.getMessage()));
@@ -97,9 +115,14 @@ public class TravelController {
 
     // 6. 즐겨찾기 전체 조회
     @GetMapping("/favorites")
-    public ResponseEntity<ApiResponse<List<FavoriteTravelResponse>>> getFavorites() {
+    public ResponseEntity<ApiResponse<List<FavoriteTravelResponse>>> getFavorites(@RequestHeader("Authorization") String token) {
         try {
-            return ResponseEntity.ok(ApiResponse.success(travelService.getFavorites()));
+            String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
+            Long userId = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("사용자 정보 없음"))
+                    .getId();
+
+            return ResponseEntity.ok(ApiResponse.success(travelService.getFavorites(userId)));
         } catch (Exception e) {
             return ResponseEntity.ok(ApiResponse.error(e.getMessage()));
         }

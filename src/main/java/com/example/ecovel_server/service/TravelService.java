@@ -1,15 +1,8 @@
 package com.example.ecovel_server.service;
 
 import com.example.ecovel_server.dto.*;
-import com.example.ecovel_server.entity.FavoriteTravel;
-import com.example.ecovel_server.entity.TravelPlace;
-import com.example.ecovel_server.entity.TravelPlan;
-import com.example.ecovel_server.entity.TravelSchedule;
-import com.example.ecovel_server.entity.TravelStatus;
-import com.example.ecovel_server.repository.FavoriteTravelRepository;
-import com.example.ecovel_server.repository.TravelPlaceRepository;
-import com.example.ecovel_server.repository.TravelPlanRepository;
-import com.example.ecovel_server.repository.TravelScheduleRepository;
+import com.example.ecovel_server.entity.*;
+import com.example.ecovel_server.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +21,14 @@ public class TravelService {
     private final TravelPlanRepository planRepo;
     private final TravelScheduleRepository scheduleRepo;
     private final TravelPlaceRepository placeRepo;
+
+    private final UserRepository userRepo;
     private final RestTemplate restTemplate; //AI 서버에 HTTP POST 요청을 보내기 위한 스프링 클래스
 
     private final AIClient aiClient;
 
     @Transactional
-    public TravelRecommendResponse recommendTravelPlan(TravelRecommendRequest req) {
+    public TravelRecommendResponse recommendTravelPlan(TravelRecommendRequest req, Long userId) {
 
         // 구/군 랜덤 처리
         String resolvedDistrict = resolveDistrict(req.getCity(), req.getDistrict());
@@ -50,6 +45,9 @@ public class TravelService {
         // 2. AI 호출
         TravelAIResponse aiRes = aiClient.getRecommendation(aiReq);
 
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자 정보 없음"));
+
         // 4. DB 저장
         TravelPlan plan = planRepo.save(
                 TravelPlan.builder()
@@ -58,6 +56,7 @@ public class TravelService {
                         .duration(req.getDuration())
                         .style(req.getStyle())
                         .transport(req.getTransport())
+                        .user(user)
                         .build()
         );
 
@@ -78,10 +77,11 @@ public class TravelService {
                 TravelPlace place = placeRepo.save(
                         TravelPlace.builder()
                                 .name(aiPlace.getName())
-                                .imageUrl(aiPlace.getImageUrl())
                                 .walkTime(aiPlace.getWalkTime())
                                 .bicycleTime(aiPlace.getBicycleTime())
                                 .publicTime(aiPlace.getPublicTime())
+                                .latitude(aiPlace.getLatitude())    // 위도 추가
+                                .longitude(aiPlace.getLongitude())  // 경도 추가
                                 .carTime(aiPlace.getCarTime())
                                 .schedule(schedule)
                                 .build()
@@ -89,7 +89,6 @@ public class TravelService {
 
                 placeDtos.add(TravelPlaceDto.builder()
                         .name(place.getName())
-                        .imageUrl(place.getImageUrl())
                         .walkTime(place.getWalkTime())
                         .bicycleTime(place.getBicycleTime())
                         .publicTime(place.getPublicTime())
@@ -106,7 +105,6 @@ public class TravelService {
         // 5. 응답 DTO 구성
         return TravelRecommendResponse.builder()
                 .planId(plan.getId()) // ← 여기에 추가
-                .thumbnail(plan.getThumbnail())
                 .city(plan.getCity())
                 .district(plan.getDistrict())
                 .duration(plan.getDuration())
@@ -140,7 +138,6 @@ public class TravelService {
             for (TravelPlace place : placeRepo.findBySchedule(schedule)) {
                 placeDtos.add(TravelPlaceDto.builder()
                         .name(place.getName())
-                        .imageUrl(place.getImageUrl())
                         .walkTime(place.getWalkTime())
                         .bicycleTime(place.getBicycleTime())
                         .publicTime(place.getPublicTime())
@@ -156,7 +153,6 @@ public class TravelService {
 
         return TravelRecommendResponse.builder()
                 .planId(plan.getId()) // ← 여기에 추가
-                .thumbnail(plan.getThumbnail())
                 .city(plan.getCity())
                 .district(plan.getDistrict())
                 .duration(plan.getDuration())
@@ -208,29 +204,30 @@ public class TravelService {
     private FavoriteTravelRepository favoriteRepo;
 
     @Transactional
-    public void addFavorite(Long planId) {
+    public void addFavorite(Long planId, Long userId) {
         TravelPlan plan = planRepo.findById(planId)
                 .orElseThrow(() -> new RuntimeException("여행 일정이 없습니다."));
 
         if (favoriteRepo.findByTravelPlan(plan).isPresent())
             throw new RuntimeException("이미 즐겨찾기 되어 있습니다.");
 
-        // 상태를 명시적으로 PLANNED로 설정
         plan.setStatus(TravelStatus.PLANNED);
         planRepo.save(plan);
 
-        favoriteRepo.save(FavoriteTravel.builder().travelPlan(plan).build());
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자 정보 없음"));
+
+        favoriteRepo.save(FavoriteTravel.builder()
+                .travelPlan(plan)
+                .user(user) // ← 사용자 정보 추가
+                .build());
     }
 
     @Transactional(readOnly = true)
-    public List<FavoriteTravelResponse> getFavorites() {
-        return favoriteRepo.findAll().stream().map(fav -> {
+    public List<FavoriteTravelResponse> getFavorites(Long userId) {
+        return favoriteRepo.findByUserId(userId).stream().map(fav -> {
             TravelPlan plan = fav.getTravelPlan();
-//            String imageUrl = plan.getScheduleList().stream()
-//                    .flatMap(s -> s.getPlaces().stream())
-//                    .map(TravelPlace::getImageUrl)
-//                    .findFirst()
-//                    .orElse(null);
+
 
             return FavoriteTravelResponse.builder()
                     .favoriteId(fav.getId()) // 즐겨찾기 ID 유지
@@ -264,11 +261,6 @@ public class TravelService {
         List<TravelPlan> plans = planRepo.findByStatus(status);
 
         return plans.stream().map(plan -> {
-//            String imageUrl = plan.getScheduleList().stream()
-//                    .flatMap(s -> s.getPlaces().stream())
-//                    .map(TravelPlace::getImageUrl)
-//                    .findFirst()
-//                    .orElse(null);
 
             // 상태 기반 조회에서는 즐겨찾기 ID 필요 없음
             return FavoriteTravelResponse.builder()

@@ -1,8 +1,8 @@
 ai:
   server:
     recommend-url: https://travel-recommend-api-98044284658.asia-northeast3.run.app/ai/recommend
-    carbon-url: http://localhost:8000/ai/carbon/estimate
-    verify-image-url: http://your-ai-server.com/ai/verify-image
+    carbon-url: https://carbon-api-340794693904.asia-northeast3.run.app/ai/carbon/estimate
+    verify-image-url: http://34.64.210.130:5000/ai/verify-image
 
 server:
   port: 8080

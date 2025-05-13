@@ -32,6 +32,4 @@ public class TravelReport {
     // 점수화한 친환경 점수
     private Integer ecoScore;
 
-    // 요약
-    private String summary;
 }

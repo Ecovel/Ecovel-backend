@@ -2,7 +2,9 @@ package com.example.ecovel_server.controller;
 
 import com.example.ecovel_server.dto.*;
 import com.example.ecovel_server.entity.TravelStatus;
+import com.example.ecovel_server.repository.UserRepository;
 import com.example.ecovel_server.service.MissionService;
+import com.example.ecovel_server.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,8 @@ import java.util.List;
 public class MissionController {
 
     private final MissionService missionService;
+    private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
     // 1. 사진 인증 업로드
     @PostMapping("/{planId}/verify")
@@ -69,20 +73,44 @@ public class MissionController {
 
     // 6. 예정된 여행 조회 → PLANNED
     @GetMapping("/scheduled")
-    public ResponseEntity<ApiResponse<List<FavoriteTravelResponse>>> getScheduled() {
-        return ResponseEntity.ok(ApiResponse.success(missionService.getPlansByStatus(TravelStatus.PLANNED)));
+    public ResponseEntity<ApiResponse<List<FavoriteTravelResponse>>> getScheduled(
+            @RequestHeader("Authorization") String token) {
+        String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
+        Long userId = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("사용자 없음"))
+                .getId();
+
+        return ResponseEntity.ok(ApiResponse.success(
+                missionService.getPlansByStatus(TravelStatus.PLANNED, userId)
+        ));
     }
 
     // 7. 진행 중인 여행 조회 → ONGOING
     @GetMapping("/ongoing")
-    public ResponseEntity<ApiResponse<List<FavoriteTravelResponse>>> getOngoing() {
-        return ResponseEntity.ok(ApiResponse.success(missionService.getPlansByStatus(TravelStatus.ONGOING)));
+    public ResponseEntity<ApiResponse<List<FavoriteTravelResponse>>> getOngoing(
+            @RequestHeader("Authorization") String token) {
+        String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
+        Long userId = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("사용자 없음"))
+                .getId();
+
+        return ResponseEntity.ok(ApiResponse.success(
+                missionService.getPlansByStatus(TravelStatus.ONGOING, userId)
+        ));
     }
 
     // 8. 완료된 여행 조회 → COMPLETED
     @GetMapping("/completed")
-    public ResponseEntity<ApiResponse<List<FavoriteTravelResponse>>> getCompleted() {
-        return ResponseEntity.ok(ApiResponse.success(missionService.getPlansByStatus(TravelStatus.COMPLETED)));
+    public ResponseEntity<ApiResponse<List<FavoriteTravelResponse>>> getCompleted(
+            @RequestHeader("Authorization") String token) {
+        String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
+        Long userId = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("사용자 없음"))
+                .getId();
+
+        return ResponseEntity.ok(ApiResponse.success(
+                missionService.getPlansByStatus(TravelStatus.COMPLETED, userId)
+        ));
     }
 
     // 위치 정보

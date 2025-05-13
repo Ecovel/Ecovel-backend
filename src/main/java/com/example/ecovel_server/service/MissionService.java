@@ -122,8 +122,8 @@ public class MissionService {
     }
 
     // 상태별 조회 → Controller에서 재사용
-    public List<FavoriteTravelResponse> getPlansByStatus(TravelStatus status) {
-        List<TravelPlan> plans = travelPlanRepository.findByStatus(status);
+    public List<FavoriteTravelResponse> getPlansByStatus(TravelStatus status, Long userId) {
+        List<TravelPlan> plans = travelPlanRepository.findByStatusAndUserId(status, userId);
         if (plans == null || plans.isEmpty()) {
             return List.of(); // 빈 리스트로 반환
         }

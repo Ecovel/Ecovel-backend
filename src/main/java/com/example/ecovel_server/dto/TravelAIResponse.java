@@ -13,12 +13,14 @@ public class TravelAIResponse {
     @Setter
     public static class TravelAIPlace {
         private String name;
-        private String imageUrl;
 
         private Integer walkTime;
         private Integer bicycleTime;
         private Integer publicTime;
         private Integer carTime;
+
+        private Double latitude;  // 위도 추가
+        private Double longitude; // 경도 추가
     }
 
     @Getter

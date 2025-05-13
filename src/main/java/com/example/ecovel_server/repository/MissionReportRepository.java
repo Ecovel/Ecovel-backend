@@ -14,4 +14,5 @@ public interface MissionReportRepository extends JpaRepository<MissionReport, Lo
     Optional<MissionReport> findByTravelPlanAndDayAndPlaceId(TravelPlan travelPlan, int day, String placeId);
 
     Optional<MissionReport> findByTravelPlanAndDay(TravelPlan travelPlan, int day);
+
 }

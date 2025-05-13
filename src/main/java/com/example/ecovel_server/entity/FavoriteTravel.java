@@ -20,4 +20,9 @@ public class FavoriteTravel {
     @JoinColumn(name = "plan_id")
     private TravelPlan travelPlan;
 
+    //사용자 정보 추가
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
 }

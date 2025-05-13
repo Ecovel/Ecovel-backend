@@ -13,5 +13,8 @@ public interface FavoriteTravelRepository extends JpaRepository<FavoriteTravel, 
     Optional<FavoriteTravel> findByTravelPlan(TravelPlan plan);
 
     // 모든 즐겨찾기된 여행 목록 반환
-    List<FavoriteTravel> findAll();
+    //List<FavoriteTravel> findAll();
+
+    //사용자 기반 조회 메서드 추가
+    List<FavoriteTravel> findByUserId(Long userId);
 }

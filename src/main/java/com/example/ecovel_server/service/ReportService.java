@@ -4,8 +4,11 @@ import com.example.ecovel_server.dto.*;
 import com.example.ecovel_server.entity.*;
 import com.example.ecovel_server.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,11 +26,21 @@ public class ReportService {
         TravelPlan plan = travelPlanRepository.findById(request.getPlanId())
                 .orElseThrow(() -> new IllegalArgumentException("여행 계획을 찾을 수 없습니다."));
 
-        if (plan.getStatus() != TravelStatus.COMPLETED) {
-            throw new IllegalStateException("완료된 여행에 대해서만 탄소 분석이 가능합니다.");
-        }
+        TravelReportResponseDto aiResponse = aiClient.getCarbonEstimate(request);
 
-        return aiClient.getCarbonEstimate(request); //어쨋든 AI 서버에서 받아온 결과를 응답한다.
+        return TravelReportResponseDto.builder()
+                .reportId(aiResponse.getReportId()) // 또는 null
+                .planId(aiResponse.getPlanId())
+                .expectedCarbon(aiResponse.getExpectedCarbon())
+                .actualCarbon(aiResponse.getActualCarbon())
+                .reducedCarbon(aiResponse.getReducedCarbon())
+                .ecoScore(aiResponse.getEcoScore())
+                .details(aiResponse.getDetails())
+                .city(plan.getCity()) // ← 여기 추가
+                .startDate(plan.getStartDate() != null
+                        ? plan.getStartDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                        : null) // ← 여기 추가
+                .build();
     }
 
     /** 2. 분석 결과 저장 (여행 상태 검증 포함) */
@@ -46,7 +59,6 @@ public class ReportService {
                 .actualCarbon(dto.getActualCarbon())
                 .reducedCarbon(dto.getReducedCarbon())
                 .ecoScore(dto.getEcoScore())
-                .summary(dto.getSummary())
                 .build();
 
         travelReportRepository.save(report);
@@ -82,7 +94,6 @@ public class ReportService {
                 .actualCarbon(report.getActualCarbon())
                 .reducedCarbon(report.getReducedCarbon())
                 .ecoScore(report.getEcoScore())
-                .summary(report.getSummary())
                 .details(details.stream().map(d ->
                         CarbonFootprintDetailDto.builder()
                                 .day(d.getDay())
@@ -98,17 +109,28 @@ public class ReportService {
     public List<TravelReportResponseDto> getAllReports() {
         List<TravelReport> reports = travelReportRepository.findAll();
 
-        // 필터링: COMPLETED 상태의 여행만
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
         return reports.stream()
                 .filter(r -> r.getTravelPlan().getStatus() == TravelStatus.COMPLETED)
-                .map(r -> TravelReportResponseDto.builder()
-                        .reportId(r.getId())
-                        .planId(r.getTravelPlan().getId())
-                        .expectedCarbon(r.getExpectedCarbon())
-                        .actualCarbon(r.getActualCarbon())
-                        .reducedCarbon(r.getReducedCarbon())
-                        .ecoScore(r.getEcoScore())
-                        .build()
-                ).collect(Collectors.toList());
+                .map(r -> {
+                    TravelPlan plan = r.getTravelPlan();
+
+                    String startDate = plan.getStartDate() != null
+                            ? plan.getStartDate().format(dateFormatter)
+                            : null;
+
+                    return TravelReportResponseDto.builder()
+                            .reportId(r.getId())
+                            .planId(plan.getId())
+                            .expectedCarbon(r.getExpectedCarbon())
+                            .actualCarbon(r.getActualCarbon())
+                            .reducedCarbon(r.getReducedCarbon())
+                            .ecoScore(r.getEcoScore())
+                            .city(plan.getCity())
+                            .startDate(startDate)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }

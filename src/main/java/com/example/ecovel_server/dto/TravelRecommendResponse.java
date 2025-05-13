@@ -13,7 +13,6 @@ import java.util.List;
 @Builder
 public class TravelRecommendResponse {
     private Long planId;
-    private String thumbnail; //이미지 url
 
     private String city;
     private String district;
