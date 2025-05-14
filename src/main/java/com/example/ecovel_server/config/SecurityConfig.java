@@ -60,7 +60,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // 로그인 없이 접근 가능한 API들
+
+                        // no login API
                         .requestMatchers(
                                 "/api/users/login",
                                 "/api/users/signup",
@@ -78,7 +79,7 @@ public class SecurityConfig {
                                 "/travel/options"
                         ).permitAll()
 
-                        // 그 외 모든 요청은 인증 필요
+                        // All other requests require authentication
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
@@ -107,12 +108,12 @@ public class SecurityConfig {
     @Bean
     public AuthenticationEntryPoint customAuthenticationEntryPoint() {
         return (request, response, authException) ->
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "정보가 일치하지 않습니다.");
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Information does not match.");
     }
 
     @Bean
     public AccessDeniedHandler customAccessDeniedHandler() {
         return (request, response, accessDeniedException) ->
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "접근이 거부되었습니다.");
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied.");
     }
 }

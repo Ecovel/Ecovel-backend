@@ -19,8 +19,7 @@ public class MissionAIController {
     private final AIClient aiClient;
 
     /**
-     * 사진 인증 직접 테스트용 API
-     * (ex. 장소 사진과 얼굴 사진만 전달하면 인증 수행)
+     * test API
      */
     @PostMapping("/verify-image")
     public ResponseEntity<MissionImageResponse> verifyImageDirect(

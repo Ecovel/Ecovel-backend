@@ -20,6 +20,7 @@ public class TravelPlace {
     private String name;         // 장소명
     private String district;     // 구/군 -> plan에 있는데 여기에도 꼭 필요할까? TravelPlace 객체만으로도 어느 지역인지 파악할 수 있음
 
+    @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
 
     // 교통 수단별 이동 시간 (분 단위)

@@ -30,6 +30,12 @@ public class QuizService {
         DailyQuiz quiz = dailyQuizRepository.findByDate(today).orElseGet(() -> {
             DailyQuizDto aiQuiz = aiClient.getTodayQuizFromAI();
 
+            // AI 퀴즈 응답 로깅
+            System.out.println("AI가 생성한 퀴즈");
+            System.out.println("   - 문제: " + aiQuiz.getQuestion());
+            System.out.println("   - 정답: " + aiQuiz.isAnswer());
+            System.out.println("   - 해설: " + aiQuiz.getExplanation());
+
             DailyQuiz newQuiz = DailyQuiz.builder()
                     .question(aiQuiz.getQuestion())
                     .date(today)
@@ -43,6 +49,8 @@ public class QuizService {
         return DailyQuizDto.builder()
                 .question(quiz.getQuestion())
                 .date(quiz.getDate())
+                .answer(quiz.isAnswerTrue())
+                .explanation(quiz.getExplanation())
                 .build();
     }
 
