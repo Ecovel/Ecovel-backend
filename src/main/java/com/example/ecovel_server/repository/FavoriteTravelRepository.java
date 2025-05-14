@@ -17,4 +17,7 @@ public interface FavoriteTravelRepository extends JpaRepository<FavoriteTravel, 
 
     //사용자 기반 조회 메서드 추가
     List<FavoriteTravel> findByUserId(Long userId);
+
+    Optional<FavoriteTravel> findByUserIdAndTravelPlanId(Long userId, Long planId);
+
 }

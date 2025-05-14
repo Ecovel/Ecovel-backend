@@ -5,6 +5,7 @@ import com.example.ecovel_server.dto.*;
 import com.example.ecovel_server.entity.*;
 import com.example.ecovel_server.repository.MissionReportRepository;
 import com.example.ecovel_server.repository.TravelPlanRepository;
+import com.example.ecovel_server.repository.TravelReportRepository;
 import com.example.ecovel_server.util.FileStorageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
@@ -27,6 +28,8 @@ public class MissionService {
     private final AIClient aiClient;
     private final TravelPlanRepository travelPlanRepository;
     private final MissionReportRepository missionReportRepository;
+    private final TravelReportRepository travelReportRepository; // 추가
+    private final GrowthService growthService; // 추가
 
     public MissionResultResponse verifyAndSaveMission(
             Long userId, // 추가
@@ -68,6 +71,20 @@ public class MissionService {
                 .verifiedAt(LocalDateTime.now())
                 .build();
         missionReportRepository.save(report);
+
+        // 인증 성공 시 탄소 절감량 반영
+        if ("success".equals(aiResult.getResult())) {
+            // 여행 리포트에서 절감량 가져오기
+            TravelReport travelReport = travelReportRepository.findByTravelPlan(plan)
+                    .orElseThrow(() -> new IllegalArgumentException("여행 리포트를 찾을 수 없습니다."));
+            Double reducedCarbon = travelReport.getReducedCarbon();
+            if (reducedCarbon == null) {
+                reducedCarbon = 0.0;
+            }
+
+            // 성장 로그에 반영
+            growthService.updateGrowthLogAfterMissionSuccess(userId, reducedCarbon);
+        }
 
         // 6. 결과 반환
         return MissionResultResponse.builder()

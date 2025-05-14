@@ -51,9 +51,16 @@ public class TravelController {
 
     // 3. 여행 상세 조회
     @GetMapping("/details/{planId}")
-    public ResponseEntity<ApiResponse<TravelRecommendResponse>> getTravelDetails(@PathVariable Long planId) {
+    public ResponseEntity<ApiResponse<TravelRecommendResponse>> getTravelDetails(
+            @PathVariable Long planId,
+            @RequestHeader("Authorization") String token) {
         try {
-            TravelRecommendResponse response = travelService.getTravelPlanDetails(planId); //tripId가 planId랑 같은거 아닌가? 굳이 다른게 쓸 이유가?
+            String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
+            Long userId = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("사용자 없음"))
+                    .getId();
+
+            TravelRecommendResponse response = travelService.getTravelPlanDetails(planId, userId);
             return ResponseEntity.ok(ApiResponse.success(response));
         } catch (Exception e) {
             return ResponseEntity.ok(ApiResponse.error(e.getMessage()));

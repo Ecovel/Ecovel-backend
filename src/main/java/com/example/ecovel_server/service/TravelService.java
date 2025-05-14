@@ -126,7 +126,7 @@ public class TravelService {
     }
 
     // 여행 상세 조회 메서드
-    public TravelRecommendResponse getTravelPlanDetails(Long planId) {
+    public TravelRecommendResponse getTravelPlanDetails(Long planId, Long userId) {
         TravelPlan plan = planRepo.findById(planId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid travel plan ID"));
 
@@ -151,12 +151,15 @@ public class TravelService {
                     .build());
         }
 
+        boolean isFavorite = favoriteRepo.findByUserIdAndTravelPlanId(userId, planId).isPresent();
+
         return TravelRecommendResponse.builder()
                 .planId(plan.getId()) // ← 여기에 추가
                 .city(plan.getCity())
                 .district(plan.getDistrict())
                 .duration(plan.getDuration())
                 .style(plan.getStyle())
+                .isFavorite(isFavorite)
                 .transport(plan.getTransport())
                 .scheduleList(scheduleDtoList)
                 .build();

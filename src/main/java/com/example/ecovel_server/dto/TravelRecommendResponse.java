@@ -19,6 +19,8 @@ public class TravelRecommendResponse {
     private String duration;     // 예: "Day Trip", "3-Day Trip"
     private String style;        // 예: "Nature", "Activity"
 
+    private Boolean isFavorite; // ← 추가(즐겨찾기 여부)
+
     //중복 선택 가능
     private List<String> transport;   // 예: "Public Transport", "Bicycle"
 

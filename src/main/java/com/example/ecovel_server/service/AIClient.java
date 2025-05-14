@@ -28,6 +28,9 @@ public class AIClient {
     @Value("${ai.server.verify-image-url}")
     private String verifyImageUrl;
 
+    @Value("${ai.server.quiz-url}")
+    private String quizUrl;
+
     /** 여행 일정 추천 (기존) */
     public TravelAIResponse getRecommendation(TravelAIRequest request) {
         return restTemplate.postForObject(recommendUrl, request, TravelAIResponse.class);
@@ -46,4 +49,15 @@ public class AIClient {
 
         return restTemplate.postForObject(verifyImageUrl, requestEntity, MissionImageResponse.class);
     }
+
+    /** 오늘의 퀴즈 요청 (GET) */
+    public DailyQuizDto getTodayQuizFromAI() {
+        return restTemplate.getForObject(quizUrl + "/today", DailyQuizDto.class);
+    }
+
+    /** 퀴즈 제출 요청 (POST) */
+    public QuizSubmitResponseDto submitQuizToAI(QuizSubmitRequestDto request) {
+        return restTemplate.postForObject(quizUrl + "/submit", request, QuizSubmitResponseDto.class);
+    }
 }
+
