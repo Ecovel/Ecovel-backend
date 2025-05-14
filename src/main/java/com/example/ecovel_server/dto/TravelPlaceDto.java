@@ -12,6 +12,8 @@ import lombok.*;
 public class TravelPlaceDto {
     private String name; //이름
 
+    private String imageUrl;
+
     //각각 걸리는 시간
     private Integer walkTime;
     private Integer bicycleTime;

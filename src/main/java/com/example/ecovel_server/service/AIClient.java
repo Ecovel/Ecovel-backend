@@ -54,10 +54,5 @@ public class AIClient {
     public DailyQuizDto getTodayQuizFromAI() {
         return restTemplate.getForObject(quizUrl + "/today", DailyQuizDto.class);
     }
-
-    /** 퀴즈 제출 요청 (POST) */
-    public QuizSubmitResponseDto submitQuizToAI(QuizSubmitRequestDto request) {
-        return restTemplate.postForObject(quizUrl + "/submit", request, QuizSubmitResponseDto.class);
-    }
 }
 

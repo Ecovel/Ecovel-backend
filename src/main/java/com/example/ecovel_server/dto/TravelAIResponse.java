@@ -14,6 +14,8 @@ public class TravelAIResponse {
     public static class TravelAIPlace {
         private String name;
 
+        private String imageUrl;
+
         private Integer walkTime;
         private Integer bicycleTime;
         private Integer publicTime;

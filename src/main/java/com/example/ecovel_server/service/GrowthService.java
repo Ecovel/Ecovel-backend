@@ -20,15 +20,19 @@ public class GrowthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        GrowthLog growthLog = growthLogRepository.findByUser(user)
-                .orElseThrow(() -> new IllegalStateException("해당 사용자의 성장 로그가 존재하지 않습니다."));
-
-        return GrowthLogResponseDto.builder()
-                .growthStage(growthLog.getGrowthStage())
-                .totalQuizSuccessCount(growthLog.getTotalQuizSuccessCount())
-                .totalMissionSuccessCount(growthLog.getTotalMissionSuccessCount())
-                .totalCarbonSaved(growthLog.getTotalCarbonSaved())
-                .build();
+        return growthLogRepository.findByUser(user)
+                .map(growthLog -> GrowthLogResponseDto.builder()
+                        .growthStage(growthLog.getGrowthStage())
+                        .totalQuizSuccessCount(growthLog.getTotalQuizSuccessCount())
+                        .totalMissionSuccessCount(growthLog.getTotalMissionSuccessCount())
+                        .totalCarbonSaved(growthLog.getTotalCarbonSaved())
+                        .build())
+                .orElse(GrowthLogResponseDto.builder()
+                        .growthStage("씨앗")            // 기본 성장 단계
+                        .totalQuizSuccessCount(0)
+                        .totalMissionSuccessCount(0)
+                        .totalCarbonSaved(0.0)
+                        .build());
     }
 
     // 2. 미션 성공 시 성장 로그 업데이트

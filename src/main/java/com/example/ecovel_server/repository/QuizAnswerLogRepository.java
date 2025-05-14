@@ -5,9 +5,10 @@ import com.example.ecovel_server.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface QuizAnswerLogRepository extends JpaRepository<QuizAnswerLog, Long> {
 
-    Optional<QuizAnswerLog> findByUserAndDate(User user, LocalDate date);
+    List<QuizAnswerLog> findAllByUserAndDate(User user, LocalDate date);
 }

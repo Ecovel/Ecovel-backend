@@ -3,7 +3,7 @@ ai:
     recommend-url: https://travel-recommend-api-98044284658.asia-northeast3.run.app/ai/recommend
     carbon-url: https://carbon-api-340794693904.asia-northeast3.run.app/ai/carbon/estimate
     verify-image-url: https://www.ecovel.site/ai/verify-image
-    quiz-url: https://www.ecovel.site/ai/quiz
+    quiz-url: https://www.ecovel.site/quiz
 
 server:
   port: 8080

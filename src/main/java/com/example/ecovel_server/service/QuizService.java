@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,8 +33,8 @@ public class QuizService {
             DailyQuiz newQuiz = DailyQuiz.builder()
                     .question(aiQuiz.getQuestion())
                     .date(today)
-                    .answerTrue(false)
-                    .explanation("")
+                    .answerTrue(aiQuiz.isAnswer())  // ✔ AI가 answer 전달
+                    .explanation(aiQuiz.getExplanation())
                     .build();
 
             return dailyQuizRepository.save(newQuiz);
@@ -52,42 +53,56 @@ public class QuizService {
 
         LocalDate today = LocalDate.now();
 
-        if (quizAnswerLogRepository.findByUserAndDate(user, today).isPresent()) {
+        // 중복 제출 여부 확인 - List로 변경
+        if (!quizAnswerLogRepository.findAllByUserAndDate(user, today).isEmpty()) {
             throw new IllegalStateException("이미 제출됨");
         }
 
         DailyQuiz quiz = dailyQuizRepository.findByDate(today.toString())
                 .orElseThrow(() -> new IllegalStateException("오늘 퀴즈 없음"));
 
-        // AI에 채점 요청 (DTO 그대로 전송)
-        QuizSubmitResponseDto aiResponse = aiClient.submitQuizToAI(request);
+        boolean correct = (quiz.isAnswerTrue() == request.isAnswer());
 
         // 기록 저장
         quizAnswerLogRepository.save(
                 QuizAnswerLog.builder()
                         .user(user)
                         .date(today)
-                        .isCorrect(aiResponse.isCorrect())
+                        .isCorrect(correct)
                         .build()
         );
 
         // 성장 로그 반영
-        if (aiResponse.isCorrect()) {
+        if (correct) {
             growthService.updateGrowthLogAfterQuizSuccess(user.getId());
         }
 
         // 해설 저장
-        quiz.setExplanation(aiResponse.getExplanation());
-        dailyQuizRepository.save(quiz);
-
-        return aiResponse;
+        return QuizSubmitResponseDto.builder()
+                .correct(correct)
+                .explanation(quiz.getExplanation())
+                .build();
     }
 
     // 오늘 퀴즈 제출 여부 확인
-    public boolean hasAnsweredToday(Long userId) {
+    public QuizAnsweredStatusDto getAnsweredStatus(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        return quizAnswerLogRepository.findByUserAndDate(user, LocalDate.now()).isPresent();
+        LocalDate today = LocalDate.now();
+        List<QuizAnswerLog> logs = quizAnswerLogRepository.findAllByUserAndDate(user, today);
+
+        if (!logs.isEmpty()) {
+            QuizAnswerLog log = logs.get(0); // 가장 첫 번째 응답만 사용
+            DailyQuiz quiz = dailyQuizRepository.findByDate(today.toString()).orElse(null);
+
+            return QuizAnsweredStatusDto.builder()
+                    .answered(true)
+                    .isCorrect(log.isCorrect())
+                    .explanation(quiz != null ? quiz.getExplanation() : null)
+                    .build();
+        }
+
+        return QuizAnsweredStatusDto.builder().answered(false).build();
     }
 }

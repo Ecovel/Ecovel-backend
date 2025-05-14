@@ -13,7 +13,6 @@ public class QuizController {
 
     private final QuizService quizService;
 
-    // 1. 오늘의 퀴즈 조회
     @GetMapping("/today")
     public ResponseEntity<ApiResponse<DailyQuizDto>> getTodayQuiz() {
         try {
@@ -23,7 +22,6 @@ public class QuizController {
         }
     }
 
-    // 오늘의 퀴즈 정답 및 해설
     @PostMapping("/submit")
     public ResponseEntity<ApiResponse<QuizSubmitResponseDto>> submitQuiz(
             @RequestBody QuizSubmitRequestDto request) {
@@ -34,13 +32,11 @@ public class QuizController {
         }
     }
 
-    //중복 응답 방지용
     @GetMapping("/answered")
     public ResponseEntity<ApiResponse<QuizAnsweredStatusDto>> hasAnsweredToday(@RequestParam Long userId) {
         try {
-            boolean answered = quizService.hasAnsweredToday(userId);
             return ResponseEntity.ok(ApiResponse.success(
-                    QuizAnsweredStatusDto.builder().answered(answered).build()
+                    quizService.getAnsweredStatus(userId)
             ));
         } catch (Exception e) {
             return ResponseEntity.ok(ApiResponse.error(e.getMessage()));

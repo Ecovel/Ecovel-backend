@@ -77,6 +77,7 @@ public class TravelService {
                 TravelPlace place = placeRepo.save(
                         TravelPlace.builder()
                                 .name(aiPlace.getName())
+                                .imageUrl(aiPlace.getImageUrl())
                                 .walkTime(aiPlace.getWalkTime())
                                 .bicycleTime(aiPlace.getBicycleTime())
                                 .publicTime(aiPlace.getPublicTime())
@@ -89,6 +90,7 @@ public class TravelService {
 
                 placeDtos.add(TravelPlaceDto.builder()
                         .name(place.getName())
+                        .imageUrl(place.getImageUrl())
                         .walkTime(place.getWalkTime())
                         .bicycleTime(place.getBicycleTime())
                         .publicTime(place.getPublicTime())
@@ -138,6 +140,7 @@ public class TravelService {
             for (TravelPlace place : placeRepo.findBySchedule(schedule)) {
                 placeDtos.add(TravelPlaceDto.builder()
                         .name(place.getName())
+                        .imageUrl(place.getImageUrl())
                         .walkTime(place.getWalkTime())
                         .bicycleTime(place.getBicycleTime())
                         .publicTime(place.getPublicTime())
