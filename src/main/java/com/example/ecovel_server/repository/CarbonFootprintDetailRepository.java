@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface CarbonFootprintDetailRepository extends JpaRepository<CarbonFootprintDetail, Long> {
 
-    // 특정 리포트에 연결된 모든 detail 조회
+    // Look up all the details associated with a specific report
     List<CarbonFootprintDetail> findByReport(TravelReport report);
 }

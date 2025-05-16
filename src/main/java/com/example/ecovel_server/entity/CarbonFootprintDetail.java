@@ -19,20 +19,19 @@ public class CarbonFootprintDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 상위 리포트
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "report_id")
     private TravelReport report;
 
-    // 해당 Day ("Day 1", "Day 2")
-    private int day;
+    // ex ("Day 1", "Day 2")
+    private String day;
 
-    // 이동 수단 (버스, 도보 등) -> 여러 개 선택 가능
+    // Transportation (bus, foot, etc.) -> Multiple choices available
     private String transportMode;
 
-    // 차량만 썼을 경우 탄소량 (예측치)
+    // Carbon content (estimated) if only the vehicle is used
     private Double vehicleCarbon;
 
-    // 실제 탄소량 (선택 교통수단 기준)
+    // Actual Carbon Amount (Based on Selective Transportation)
     private Double actualCarbon;
 }

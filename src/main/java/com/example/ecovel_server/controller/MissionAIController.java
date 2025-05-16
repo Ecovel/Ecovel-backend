@@ -23,22 +23,22 @@ public class MissionAIController {
      */
     @PostMapping("/verify-image")
     public ResponseEntity<MissionImageResponse> verifyImageDirect(
-            @RequestParam("image") MultipartFile image, //업로드한 미션 사진
+            @RequestParam("image") MultipartFile image, //upload image
             @RequestParam("placeId") String placeId,
             @RequestParam("day") int day,
-            @RequestParam("userFaceUrl") String userFaceUrl //사용자 기존 얼굴 이미지
+            @RequestParam("userFaceUrl") String userFaceUrl // user face image
     ) {
         // 1. MultipartBody 생성
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("image", image.getResource()); // RestTemplate는 File 또는 Resource 사용 가능
+        body.add("image", image.getResource());
         body.add("placeId", placeId);
         body.add("day", String.valueOf(day));
         body.add("userFaceUrl", userFaceUrl);
 
-        // 2. AI 서버 호출
+        // 2. AI server
         MissionImageResponse result = aiClient.verifyMissionImage(body);
 
-        // 3. 결과 반환
+        // 3. return result
         return ResponseEntity.ok(result);
     }
 }

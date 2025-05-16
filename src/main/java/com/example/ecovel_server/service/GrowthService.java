@@ -15,10 +15,10 @@ public class GrowthService {
     private final GrowthLogRepository growthLogRepository;
     private final UserRepository userRepository;
 
-    // 1. 성장 상태 조회
+    // 1. Look up your growth status
     public GrowthLogResponseDto getGrowthLog(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("User not found."));
 
         return growthLogRepository.findByUser(user)
                 .map(growthLog -> GrowthLogResponseDto.builder()
@@ -28,17 +28,17 @@ public class GrowthService {
                         .totalCarbonSaved(growthLog.getTotalCarbonSaved())
                         .build())
                 .orElse(GrowthLogResponseDto.builder()
-                        .growthStage("씨앗")            // 기본 성장 단계
+                        .growthStage("Seed")
                         .totalQuizSuccessCount(0)
                         .totalMissionSuccessCount(0)
                         .totalCarbonSaved(0.0)
                         .build());
     }
 
-    // 2. 미션 성공 시 성장 로그 업데이트
+    // 2. Update Growth Logs on Mission Success
     public void updateGrowthLogAfterMissionSuccess(Long userId, Double carbonSaved) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("User not found.."));
 
         GrowthLog growthLog = growthLogRepository.findByUser(user)
                 .orElseGet(() -> growthLogRepository.save(
@@ -47,19 +47,19 @@ public class GrowthService {
                                 .totalMissionSuccessCount(0)
                                 .totalQuizSuccessCount(0)
                                 .totalCarbonSaved(0.0)
-                                .growthStage("씨앗")
+                                .growthStage("Seed")
                                 .build()
                 ));
 
         growthLog.setTotalMissionSuccessCount(growthLog.getTotalMissionSuccessCount() + 1);
         growthLog.setTotalCarbonSaved(growthLog.getTotalCarbonSaved() + carbonSaved);
 
-        // 간단한 성장 단계 갱신 로직
+        // Simple Growth Phase Update Logic
         int totalSuccess = growthLog.getTotalMissionSuccessCount() + growthLog.getTotalQuizSuccessCount();
         if (totalSuccess >= 10) {
-            growthLog.setGrowthStage("성장기");
+            growthLog.setGrowthStage("Tree");
         } else if (totalSuccess >= 5) {
-            growthLog.setGrowthStage("새싹");
+            growthLog.setGrowthStage("Seed");
         }
 
         growthLogRepository.save(growthLog);
@@ -67,7 +67,7 @@ public class GrowthService {
 
     public void updateGrowthLogAfterQuizSuccess(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("User not found.."));
 
         GrowthLog growthLog = growthLogRepository.findByUser(user)
                 .orElseGet(() -> growthLogRepository.save(
@@ -76,7 +76,7 @@ public class GrowthService {
                                 .totalMissionSuccessCount(0)
                                 .totalQuizSuccessCount(0)
                                 .totalCarbonSaved(0.0)
-                                .growthStage("씨앗")
+                                .growthStage("Seed")
                                 .build()
                 ));
 
@@ -84,9 +84,9 @@ public class GrowthService {
 
         int totalSuccess = growthLog.getTotalMissionSuccessCount() + growthLog.getTotalQuizSuccessCount();
         if (totalSuccess >= 10) {
-            growthLog.setGrowthStage("성장기");
+            growthLog.setGrowthStage("Tree");
         } else if (totalSuccess >= 5) {
-            growthLog.setGrowthStage("새싹");
+            growthLog.setGrowthStage("Seed");
         }
 
         growthLogRepository.save(growthLog);

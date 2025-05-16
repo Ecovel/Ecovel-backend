@@ -2,8 +2,6 @@ package com.example.ecovel_server.dto;
 
 import lombok.*;
 
-//TravelPlanDto와 똑같은 구성을 가지고 있기 때문에 저 파일은 없어도 된다.
-
 import java.util.List;
 
 @Getter
@@ -16,13 +14,12 @@ public class TravelRecommendResponse {
 
     private String city;
     private String district;
-    private String duration;     // 예: "Day Trip", "3-Day Trip"
-    private String style;        // 예: "Nature", "Activity"
+    private String duration;     // ex: "Day Trip", "3-Day Trip"
+    private String style;        // ex: "Nature", "Activity"
 
-    private Boolean isFavorite; // ← 추가(즐겨찾기 여부)
+    private Boolean isFavorite; // Favorite or not
 
-    //중복 선택 가능
-    private List<String> transport;   // 예: "Public Transport", "Bicycle"
+    private List<String> transport;   // ex: "Public Transport", "Bicycle"
 
-    private List<TravelScheduleDto> scheduleList;    // DAY별 일정 목록
+    private List<TravelScheduleDto> scheduleList;    // Schedule list by DAY
 }

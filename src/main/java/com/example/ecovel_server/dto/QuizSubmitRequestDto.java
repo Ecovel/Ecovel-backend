@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class QuizSubmitRequestDto {
     private Long userId;
-    private boolean answer; // 사용자의 응답: true(O), false(X)
+    private boolean answer; // true(O), false(X)
 }
 

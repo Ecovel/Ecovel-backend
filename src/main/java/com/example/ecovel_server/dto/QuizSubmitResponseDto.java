@@ -9,5 +9,5 @@ import lombok.Setter;
 @Builder
 public class QuizSubmitResponseDto {
     private boolean correct;
-    private String explanation; // 추가
+    private String explanation;
 }

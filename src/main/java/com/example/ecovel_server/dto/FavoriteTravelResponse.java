@@ -17,5 +17,4 @@ public class FavoriteTravelResponse {
     private String style;
     private String duration;
     private List<String> transport;
-    //private String imageUrl; // 첫 장소 이미지 URL
 }

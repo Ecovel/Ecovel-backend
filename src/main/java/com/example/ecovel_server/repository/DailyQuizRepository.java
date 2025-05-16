@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface DailyQuizRepository extends JpaRepository<DailyQuiz, Long> {
 
-    Optional<DailyQuiz> findByDate(String date); // 날짜별 퀴즈 조회
+    Optional<DailyQuiz> findByDate(String date); // Quiz inquiry by date
 }
 

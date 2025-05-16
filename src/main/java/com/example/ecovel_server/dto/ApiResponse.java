@@ -12,12 +12,12 @@ public class ApiResponse<T> {
     private T result;
     private String error;
 
-    // 성공 응답 생성기
+    //success
     public static <T> ApiResponse<T> success(T result) {
         return new ApiResponse<>(HttpStatus.OK, true, result, null);
     }
 
-    // 실패 응답 생성기
+    //error
     public static <T> ApiResponse<T> error(String errorMessage) {
         return new ApiResponse<>(HttpStatus.OK, false, null, errorMessage);
     }

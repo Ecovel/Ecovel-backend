@@ -30,16 +30,10 @@ public class QuizService {
         DailyQuiz quiz = dailyQuizRepository.findByDate(today).orElseGet(() -> {
             DailyQuizDto aiQuiz = aiClient.getTodayQuizFromAI();
 
-            // AI 퀴즈 응답 로깅
-            System.out.println("AI가 생성한 퀴즈");
-            System.out.println("   - 문제: " + aiQuiz.getQuestion());
-            System.out.println("   - 정답: " + aiQuiz.isAnswer());
-            System.out.println("   - 해설: " + aiQuiz.getExplanation());
-
             DailyQuiz newQuiz = DailyQuiz.builder()
                     .question(aiQuiz.getQuestion())
                     .date(today)
-                    .answerTrue(aiQuiz.isAnswer())  // ✔ AI가 answer 전달
+                    .answerTrue(aiQuiz.isAnswer())
                     .explanation(aiQuiz.getExplanation())
                     .build();
 
@@ -57,21 +51,21 @@ public class QuizService {
     @Transactional
     public QuizSubmitResponseDto submitQuiz(QuizSubmitRequestDto request) {
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
+                .orElseThrow(() -> new IllegalArgumentException("No User"));
 
         LocalDate today = LocalDate.now();
 
-        // 중복 제출 여부 확인 - List로 변경
+        // Check duplicate submissions
         if (!quizAnswerLogRepository.findAllByUserAndDate(user, today).isEmpty()) {
-            throw new IllegalStateException("이미 제출됨");
+            throw new IllegalStateException("Already submitted");
         }
 
         DailyQuiz quiz = dailyQuizRepository.findByDate(today.toString())
-                .orElseThrow(() -> new IllegalStateException("오늘 퀴즈 없음"));
+                .orElseThrow(() -> new IllegalStateException("No quiz today"));
 
         boolean correct = (quiz.isAnswerTrue() == request.isAnswer());
 
-        // 기록 저장
+        // Save records
         quizAnswerLogRepository.save(
                 QuizAnswerLog.builder()
                         .user(user)
@@ -80,28 +74,27 @@ public class QuizService {
                         .build()
         );
 
-        // 성장 로그 반영
+        // Reflect growth log
         if (correct) {
             growthService.updateGrowthLogAfterQuizSuccess(user.getId());
         }
 
-        // 해설 저장
         return QuizSubmitResponseDto.builder()
                 .correct(correct)
                 .explanation(quiz.getExplanation())
                 .build();
     }
 
-    // 오늘 퀴즈 제출 여부 확인
+    // Check if you submit a quiz today
     public QuizAnsweredStatusDto getAnsweredStatus(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("User not found."));
 
         LocalDate today = LocalDate.now();
         List<QuizAnswerLog> logs = quizAnswerLogRepository.findAllByUserAndDate(user, today);
 
         if (!logs.isEmpty()) {
-            QuizAnswerLog log = logs.get(0); // 가장 첫 번째 응답만 사용
+            QuizAnswerLog log = logs.get(0);
             DailyQuiz quiz = dailyQuizRepository.findByDate(today.toString()).orElse(null);
 
             return QuizAnsweredStatusDto.builder()

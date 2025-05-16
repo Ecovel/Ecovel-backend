@@ -15,10 +15,11 @@ import java.nio.file.StandardCopyOption;
 @Component
 public class FileStorageUtil {
 
-    private static final String BASE_UPLOAD_DIR = "uploads"; // 상대경로 or 절대경로
+    private static final String BASE_UPLOAD_DIR = "/tmp/uploads";
+    private static final String BASE_DOWNLOAD_DIR = "/tmp/downloads";
 
-    // 사용자가 업로드한 이미지
-    public String saveImageAndReturnUrl(MultipartFile file, Long planId, int day, String placeId) {
+    // Save user uploaded images
+    public File saveImageToFile(MultipartFile file, Long planId, int day, String placeId) {
         String dirPath = String.format("%s/%d/day%d", BASE_UPLOAD_DIR, planId, day);
         File dir = new File(dirPath);
         if (!dir.exists()) {
@@ -28,20 +29,21 @@ public class FileStorageUtil {
         String fileName = placeId + "_" + System.currentTimeMillis() + ".jpg";
         File dest = new File(dir, fileName);
         try {
+            if (file == null || file.isEmpty()) {
+                throw new RuntimeException("The uploaded image is empty.");
+            }
             file.transferTo(dest);
         } catch (IOException e) {
-            throw new RuntimeException("이미지 저장 실패", e);
+            throw new RuntimeException("Failed to save images", e);
         }
 
-        // 클라이언트 접근 가능한 URL 반환
-        return String.format("/uploads/%d/day%d/%s", planId, day, fileName);
+        return dest;
     }
 
-
-    // 프론트에서 받는 등록된 얼굴 이미지
+    // Download registered face image from URL
     public File downloadImageFromUrl(String url, Long planId, int day, String placeId) {
         try (InputStream in = new URL(url).openStream()) {
-            String dirPath = String.format("downloads/%d/day%d", planId, day);
+            String dirPath = String.format("%s/%d/day%d", BASE_DOWNLOAD_DIR, planId, day);
             File dir = new File(dirPath);
             if (!dir.exists()) dir.mkdirs();
 
@@ -51,7 +53,7 @@ public class FileStorageUtil {
             Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
             return file;
         } catch (IOException e) {
-            throw new RuntimeException("등록된 얼굴 이미지 다운로드 실패", e);
+            throw new RuntimeException("Failed to download registered face image", e);
         }
     }
 }

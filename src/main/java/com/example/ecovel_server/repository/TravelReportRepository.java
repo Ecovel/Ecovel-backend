@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface TravelReportRepository extends JpaRepository<TravelReport, Long> {
 
-    // 여행 계획(TravelPlan)으로 리포트 조회
+    // Look up the report with TravelPlan
     Optional<TravelReport> findByTravelPlan(TravelPlan travelPlan);
 }

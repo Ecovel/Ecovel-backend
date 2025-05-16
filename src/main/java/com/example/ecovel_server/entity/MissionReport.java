@@ -21,17 +21,17 @@ public class MissionReport {
     @JoinColumn(name = "user_id")
     private User user;
 
-    // 어떤 여행 계획에 속한 인증인지
+    // What kind of travel plan certification does it belong to
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id")
     private TravelPlan travelPlan;
 
-    private int day;                // DAY1, DAY2 등
-    private String placeId;         // 장소 식별자 (혹은 TravelPlace의 ID)
+    private int day;                // DAY1, DAY2
+    private String placeId;
 
-    private String imageUrl;        // 업로드한 이미지의 URL
+    private String imageUrl;        // upload image URL
 
-    private String result; // 성공 여부
+    private String result;          // Successful or not
 
-    private LocalDateTime verifiedAt; // 인증 완료 시각
+    private LocalDateTime verifiedAt; // Authentication completion time
 }

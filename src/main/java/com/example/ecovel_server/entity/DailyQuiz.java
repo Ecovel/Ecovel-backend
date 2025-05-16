@@ -15,12 +15,12 @@ public class DailyQuiz {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String question;     // 퀴즈 질문
+    private String question;
 
-    private boolean answerTrue;  // 정답: true = O(참), false = X(거짓)
+    private boolean answerTrue;  // true = O(참), false = X(거짓)
 
-    private String date;         // 퀴즈 날짜 (예: "2025-05-13")
+    private String date;         // (ex: "2025-05-13")
 
     @Column(length = 1000)
-    private String explanation; // 정답 해설
+    private String explanation; // an explanation of the answer
 }

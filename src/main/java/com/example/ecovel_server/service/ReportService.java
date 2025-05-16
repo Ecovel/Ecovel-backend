@@ -21,38 +21,36 @@ public class ReportService {
     private final CarbonFootprintDetailRepository carbonDetailRepository;
     private final TravelPlanRepository travelPlanRepository;
 
-    /** 1. 탄소 분석 요청 (AI 호출 전 여행 상태 검증) */
     public TravelReportResponseDto analyzeReport(CarbonEstimateRequest request) {
         TravelPlan plan = travelPlanRepository.findById(request.getPlanId())
-                .orElseThrow(() -> new IllegalArgumentException("여행 계획을 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("No travel plans found."));
 
         TravelReportResponseDto aiResponse = aiClient.getCarbonEstimate(request);
 
         return TravelReportResponseDto.builder()
-                .reportId(aiResponse.getReportId()) // 또는 null
+                .reportId(aiResponse.getReportId())
                 .planId(aiResponse.getPlanId())
                 .expectedCarbon(aiResponse.getExpectedCarbon())
                 .actualCarbon(aiResponse.getActualCarbon())
                 .reducedCarbon(aiResponse.getReducedCarbon())
                 .ecoScore(aiResponse.getEcoScore())
                 .details(aiResponse.getDetails())
-                .city(plan.getCity()) // ← 여기 추가
+                .city(plan.getCity())
                 .startDate(plan.getStartDate() != null
                         ? plan.getStartDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                        : null) // ← 여기 추가
+                        : null)
                 .build();
     }
 
-    /** 2. 분석 결과 저장 (여행 상태 검증 포함) */
     public void saveReport(TravelReportResponseDto dto) {
         TravelPlan plan = travelPlanRepository.findById(dto.getPlanId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid planId"));
 
         if (plan.getStatus() != TravelStatus.COMPLETED) {
-            throw new IllegalStateException("여행이 완료된 상태에서만 리포트를 저장할 수 있습니다.");
+            throw new IllegalStateException("You can save the report only when the trip is complete.");
         }
 
-        // 1. 리포트 저장
+        // 1. Save Report
         TravelReport report = TravelReport.builder()
                 .travelPlan(plan)
                 .expectedCarbon(dto.getExpectedCarbon())
@@ -63,11 +61,11 @@ public class ReportService {
 
         travelReportRepository.save(report);
 
-        // 2. 세부 내용 저장
+        // 2. Save Details
         List<CarbonFootprintDetail> details = dto.getDetails().stream().map(d ->
                 CarbonFootprintDetail.builder()
                         .report(report)
-                        .day(Integer.parseInt(d.getDay().replaceAll("[^0-9]", "")))
+                        .day(d.getDay())
                         .transportMode(d.getTransportMode())
                         .vehicleCarbon(d.getVehicleCarbon())
                         .actualCarbon(d.getActualCarbon())
@@ -77,7 +75,7 @@ public class ReportService {
         carbonDetailRepository.saveAll(details);
     }
 
-    /** 3. 리포트 단건 조회 */
+    /** 3. Check the report unit */
     public TravelReportResponseDto getReportByPlan(Long planId) {
         TravelPlan plan = travelPlanRepository.findById(planId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid planId"));
@@ -105,7 +103,7 @@ public class ReportService {
                 .build();
     }
 
-    /** 4. 전체 리포트 리스트 조회 (COMPLETED 여행만) */
+    /** 4. Check the complete report list (COMPLETED travel only) */
     public List<TravelReportResponseDto> getAllReports() {
         List<TravelReport> reports = travelReportRepository.findAll();
 

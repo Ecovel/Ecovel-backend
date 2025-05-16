@@ -21,7 +21,7 @@ public class QuizAnswerLog {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private LocalDate date;      // 퀴즈 푼 날짜
+    private LocalDate date;      // the date of the quiz
 
-    private boolean isCorrect;   // 정답 여부 (맞췄는지)
+    private boolean isCorrect;   // Did you get it right
 }

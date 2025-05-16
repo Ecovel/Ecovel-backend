@@ -26,7 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final ObjectProvider<UserService> userServiceProvider;
 
-    // JWT 검사를 제외할 엔드포인트 목록
+    // List of endpoints to exclude JWT scans
     private static final List<String> EXCLUDED_ENDPOINTS = List.of(
             "/api/users/login",
             "/api/users/signup",
@@ -58,12 +58,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
 
-        // GET /posts/** 요청은 JWT 필터를 거치지 않도록 제외
+        // GET /posts/** requests are excluded from going through the JWT filter
         if (request.getMethod().equalsIgnoreCase("GET") && path.startsWith("/posts")) {
             return true;
         }
 
-        // 특정 예외 처리 URL 리스트에 포함된 경우도 필터 제외
+        // Exclude filters even if they are included in a list of URL's for handling certain exceptions
         return EXCLUDED_ENDPOINTS.contains(path) || path.startsWith("/swagger-ui/") || path.startsWith("/v3/api-docs")|| path.startsWith("/hello");
     }
 
@@ -72,9 +72,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String requestURI = request.getRequestURI();
-        System.out.println("Incoming Request URI: " + requestURI); // ✅ 요청 URI 로그 추가
+        System.out.println("Incoming Request URI: " + requestURI); // Add Request URI Logs
 
-        // 예외 처리할 엔드포인트인지 확인
+        // Verify that you are an endpoint to handle exceptions
         if (EXCLUDED_ENDPOINTS.contains(requestURI) || requestURI.startsWith("/swagger-ui/") || requestURI.startsWith("/v3/api-docs")) {
             System.out.println("Skipping JWT filter for: " + requestURI);
             filterChain.doFilter(request, response);
@@ -84,11 +84,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             String token = getTokenFromRequest(request);
-            System.out.println("Extracted Token: " + token); // ✅ JWT 추출 로그
+            System.out.println("Extracted Token: " + token);
 
             if (token != null && jwtUtil.validateToken(token)) {
                 String email = jwtUtil.extractEmail(token);
-                System.out.println("Extracted Username from JWT: " + email); // ✅ 사용자 이름 추출 로그
+                System.out.println("Extracted Username from JWT: " + email);
 
                 UserDetails userDetails = getUserService().loadUserByUsername(email);
 
@@ -97,19 +97,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    System.out.println("User authenticated: " + email); // ✅ 인증 성공 로그
+                    System.out.println("User authenticated: " + email);
                 }
             } else {
-                System.out.println("Invalid JWT Token"); // ✅ JWT가 유효하지 않음
+                System.out.println("Invalid JWT Token");
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
                 return;
             }
         } catch (ExpiredJwtException e) {
-            System.out.println("JWT Token has expired"); // ✅ JWT 만료 로그
+            System.out.println("JWT Token has expired");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT Token has expired");
             return;
         } catch (MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
-            System.out.println("JWT Authentication failed"); // ✅ 인증 실패 로그
+            System.out.println("JWT Authentication failed");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT Authentication failed");
             return;
         }

@@ -21,9 +21,9 @@ public class UserService implements UserDetailsService {
 
     public String signup(UserRequest request) {
         if (userRepository.existsByEmail(request.getEmail()))
-            throw new RuntimeException("이메일 중복");
+            throw new RuntimeException("duplicate e-mail");
         if (userRepository.existsByNickname(request.getNickname()))
-            throw new RuntimeException("닉네임 중복");
+            throw new RuntimeException("Nickname overlap");
 
         User user = User.builder()
                 .email(request.getEmail())
@@ -33,14 +33,14 @@ public class UserService implements UserDetailsService {
                 .build();
 
         userRepository.save(user);
-        return "회원가입 완료";
+        return "Membership registration completed";
     }
 
     public String login(UserLoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("이메일 존재 안 함"));
+                .orElseThrow(() -> new RuntimeException("Email does not exist"));
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword()))
-            throw new RuntimeException("비밀번호 오류");
+            throw new RuntimeException("Password error");
 
         return jwtUtil.generateToken(user.getEmail());
     }
@@ -56,16 +56,15 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("유저 없음"));
+                .orElseThrow(() -> new UsernameNotFoundException("No User"));
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(), user.getPassword(), List.of()
         );
     }
 
-    //사용X
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("이메일에 해당하는 사용자 없음"));
+                .orElseThrow(() -> new RuntimeException("No user corresponding to email"));
     }
 }

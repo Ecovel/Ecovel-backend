@@ -6,5 +6,5 @@ import lombok.Data;
 
 @Data
 public class MissionImageResponse {
-    private String result; //성공 or 실패
+    private String result; //success or fail
 }

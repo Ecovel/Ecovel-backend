@@ -15,12 +15,12 @@ public class FavoriteTravel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 즐겨찾기된 여행 계획
+    // Favorite Travel Plan
     @OneToOne
     @JoinColumn(name = "plan_id")
     private TravelPlan travelPlan;
 
-    //사용자 정보 추가
+    //Adding User Information
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

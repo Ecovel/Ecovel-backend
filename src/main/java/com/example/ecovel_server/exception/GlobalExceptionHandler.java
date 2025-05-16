@@ -1,6 +1,6 @@
 package com.example.ecovel_server.exception;
 
-//spring에서 모든 controller에 적용되는 전역 예외 처리기
+//Global exception handler applied to all controllers in spring
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

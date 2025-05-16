@@ -21,12 +21,12 @@ public class TravelPlan {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; //각 여행 계획의 고유 식별자
+    private Long id;
 
     private LocalDate startDate;
 
-    private String city;         // 선택된 시도
-    private String district;     // 선택된 구/군
+    private String city;
+    private String district;
     private String duration;
     private String style;
 
@@ -34,19 +34,19 @@ public class TravelPlan {
     private List<String> transport;
 
     @OneToMany(mappedBy = "travelPlan", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TravelSchedule> scheduleList; //이 여행 계획에 연결된 여러 개의 일정 정보 리스트
+    private List<TravelSchedule> scheduleList; //Multiple calendar information lists associated with this travel plan
 
-    // 여행 상태 필드 추가
+    // Add Travel Status Field
     @Enumerated(EnumType.STRING)
     private TravelStatus status;
 
-    // JPA 저장 시 기본값 설정
+    // JPA Save Defaults
     @PrePersist
     public void setDefaultStatus() {
         if (status == null) this.status = TravelStatus.PLANNED;
     }
 
-    //사용자 정보 추가
+    //Adding User Information
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

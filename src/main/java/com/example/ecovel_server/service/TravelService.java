@@ -30,11 +30,9 @@ public class TravelService {
     @Transactional
     public TravelRecommendResponse recommendTravelPlan(TravelRecommendRequest req, Long userId) {
 
-        // 구/군 랜덤 처리
         String resolvedDistrict = resolveDistrict(req.getCity(), req.getDistrict());
 
-        // 1. 요청 변환
-        // 프론트에서 받은 요청 TravelRecommendRequest를 AI 서버가 이해할 수 있는 TravelAiRequest로 변환
+        // 1. Request conversion
         TravelAIRequest aiReq = new TravelAIRequest();
         aiReq.setCity(req.getCity());
         aiReq.setDistrict(req.getDistrict());
@@ -42,17 +40,17 @@ public class TravelService {
         aiReq.setStyle(req.getStyle());
         aiReq.setTransport(req.getTransport());
 
-        // 2. AI 호출
+        // 2. AI call
         TravelAIResponse aiRes = aiClient.getRecommendation(aiReq);
 
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자 정보 없음"));
+                .orElseThrow(() -> new RuntimeException("No User Information"));
 
-        // 4. DB 저장
+        // 4. Save DB
         TravelPlan plan = planRepo.save(
                 TravelPlan.builder()
                         .city(req.getCity())
-                        .district(resolvedDistrict)  // 요청 district 대신 resolved 값 저장
+                        .district(resolvedDistrict)
                         .duration(req.getDuration())
                         .style(req.getStyle())
                         .transport(req.getTransport())
@@ -60,7 +58,7 @@ public class TravelService {
                         .build()
         );
 
-        //TravelScheduleDto 처리
+        //TravelScheduleDto
         List<TravelScheduleDto> scheduleDtoList = new ArrayList<>();
 
         for (TravelAIResponse.TravelAIDay aiDay : aiRes.getScheduleList()) {
@@ -71,7 +69,7 @@ public class TravelService {
                             .build()
             );
 
-            //TravelPlaceDto 처리
+            //TravelPlaceDto
             List<TravelPlaceDto> placeDtos = new ArrayList<>();
             for (TravelAIResponse.TravelAIPlace aiPlace : aiDay.getPlaces()) {
                 TravelPlace place = placeRepo.save(
@@ -81,8 +79,8 @@ public class TravelService {
                                 .walkTime(aiPlace.getWalkTime())
                                 .bicycleTime(aiPlace.getBicycleTime())
                                 .publicTime(aiPlace.getPublicTime())
-                                .latitude(aiPlace.getLatitude())    // 위도 추가
-                                .longitude(aiPlace.getLongitude())  // 경도 추가
+                                .latitude(aiPlace.getLatitude())
+                                .longitude(aiPlace.getLongitude())
                                 .carTime(aiPlace.getCarTime())
                                 .schedule(schedule)
                                 .build()
@@ -104,9 +102,9 @@ public class TravelService {
                     .build());
         }
 
-        // 5. 응답 DTO 구성
+        // 5. Response DTO Configuration
         return TravelRecommendResponse.builder()
-                .planId(plan.getId()) // ← 여기에 추가
+                .planId(plan.getId())
                 .city(plan.getCity())
                 .district(plan.getDistrict())
                 .duration(plan.getDuration())
@@ -116,7 +114,7 @@ public class TravelService {
                 .build();
     }
 
-    //구 선택 시 랜덤을 선택했을 때
+    // When you select a phrase, choose a random phrase
     private String resolveDistrict(String city, String district) {
         if (district == null || district.equalsIgnoreCase("Random")) {
             List<String> candidates = getDistrictsByCity(city).getDistricts();
@@ -127,7 +125,7 @@ public class TravelService {
         return district;
     }
 
-    // 여행 상세 조회 메서드
+    // Travel Details Inquiry Method
     public TravelRecommendResponse getTravelPlanDetails(Long planId, Long userId) {
         TravelPlan plan = planRepo.findById(planId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid travel plan ID"));
@@ -157,7 +155,7 @@ public class TravelService {
         boolean isFavorite = favoriteRepo.findByUserIdAndTravelPlanId(userId, planId).isPresent();
 
         return TravelRecommendResponse.builder()
-                .planId(plan.getId()) // ← 여기에 추가
+                .planId(plan.getId())
                 .city(plan.getCity())
                 .district(plan.getDistrict())
                 .duration(plan.getDuration())
@@ -205,27 +203,27 @@ public class TravelService {
         return new DistrictResponse(districts);
     }
 
-    // 즐겨찾기 기능 추가
+    // Add Favorite Features
     @Autowired
     private FavoriteTravelRepository favoriteRepo;
 
     @Transactional
     public void addFavorite(Long planId, Long userId) {
         TravelPlan plan = planRepo.findById(planId)
-                .orElseThrow(() -> new RuntimeException("여행 일정이 없습니다."));
+                .orElseThrow(() -> new RuntimeException("I don't have a travel schedule."));
 
         if (favoriteRepo.findByTravelPlan(plan).isPresent())
-            throw new RuntimeException("이미 즐겨찾기 되어 있습니다.");
+            throw new RuntimeException("It's already a favorite.");
 
         plan.setStatus(TravelStatus.PLANNED);
         planRepo.save(plan);
 
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자 정보 없음"));
+                .orElseThrow(() -> new RuntimeException("No User Information"));
 
         favoriteRepo.save(FavoriteTravel.builder()
                 .travelPlan(plan)
-                .user(user) // ← 사용자 정보 추가
+                .user(user)
                 .build());
     }
 
@@ -236,8 +234,8 @@ public class TravelService {
 
 
             return FavoriteTravelResponse.builder()
-                    .favoriteId(fav.getId()) // 즐겨찾기 ID 유지
-                    .planId(plan.getId()) // <-- 이 줄 추가
+                    .favoriteId(fav.getId())
+                    .planId(plan.getId())
                     .city(plan.getCity())
                     .district(plan.getDistrict())
                     .duration(plan.getDuration())
@@ -253,11 +251,10 @@ public class TravelService {
         favoriteRepo.deleteById(favoriteId);
     }
 
-    // 상태 변경
     @Transactional
     public void updatePlanStatus(Long planId, TravelStatus status) {
         TravelPlan plan = planRepo.findById(planId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 여행 일정이 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("The itinerary does not exist."));
         plan.setStatus(status);
         planRepo.save(plan);
     }
@@ -268,7 +265,7 @@ public class TravelService {
 
         return plans.stream().map(plan -> {
 
-            // 상태 기반 조회에서는 즐겨찾기 ID 필요 없음
+            // Status-based queries do not require favorite IDs
             return FavoriteTravelResponse.builder()
                     .favoriteId(null)
                     .planId(plan.getId())

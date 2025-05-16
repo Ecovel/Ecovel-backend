@@ -1,6 +1,6 @@
 package com.example.ecovel_server.entity;
 
-//DAY별 여행 일정
+//Travel schedule by DAY
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,7 +22,7 @@ public class TravelSchedule {
     private int day; // "DAY 1", "DAY 2"
 
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TravelPlace> places; //해당 일정에 포함된 여행 장소들(이동 수단도 포함)
+    private List<TravelPlace> places; //Places of travel included in the itinerary (including means of transportation)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id")

@@ -15,21 +15,21 @@ public class TravelReport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 하나의 리포트는 하나의 여행 계획(TravelPlan)에 대응
+    // One report corresponds to one TravelPlan
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id")
     private TravelPlan travelPlan;
 
-    // 차량만 이용했을 때 예상되는 총 배출량
+    // Total emissions expected when using vehicles only
     private Double expectedCarbon;
 
-    // 실제 사용한 이동 수단 기준 탄소량
+    // Actual amount of carbon used by means of transportation
     private Double actualCarbon;
 
-    // 절감량 (expected - actual)
+    // the amount of savings (expected - actual)
     private Double reducedCarbon;
 
-    // 점수화한 친환경 점수
+    // Scored Green Scores
     private Integer ecoScore;
 
 }

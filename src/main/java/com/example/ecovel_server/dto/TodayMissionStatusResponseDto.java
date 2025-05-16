@@ -8,10 +8,9 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder
 public class TodayMissionStatusResponseDto {
-    private int day;       // 오늘이 몇일차인지
-    private boolean isCompleted; // 오늘 인증 했는지 여부
+    private int day;       // What day is it today
+    private boolean isCompleted; // Did you authenticate today
 
-    // 프론트 응답용: "DAY N" 포맷으로 보여주기
     public String getDay() {
         return "DAY " + day;
     }

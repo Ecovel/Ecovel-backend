@@ -13,7 +13,6 @@ public class MissionLocationResponseDto {
     private Double latitude;
     private Double longitude;
 
-    // 프론트 응답용: "DAY N" 포맷으로 보여주기
     public String getDay() {
         return "DAY " + day;
     }

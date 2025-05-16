@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class QuizAnsweredStatusDto {
-    private boolean answered; // 오늘 퀴즈를 풀었는지 여부
-    private Boolean isCorrect;      // nullable 허용
-    private String explanation;     // nullable 허용
+    private boolean answered;
+    private Boolean isCorrect;      // nullable allow
+    private String explanation;     // nullable allow
 }

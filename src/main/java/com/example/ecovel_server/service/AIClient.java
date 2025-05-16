@@ -31,17 +31,17 @@ public class AIClient {
     @Value("${ai.server.quiz-url}")
     private String quizUrl;
 
-    /** 여행 일정 추천 (기존) */
+    // Travel Schedule Recommendation (Existing)
     public TravelAIResponse getRecommendation(TravelAIRequest request) {
         return restTemplate.postForObject(recommendUrl, request, TravelAIResponse.class);
     }
 
-    /** 일정 기반 탄소 분석 요청 (신규) */
+    // Schedule-based carbon analysis request (new)
     public TravelReportResponseDto getCarbonEstimate(CarbonEstimateRequest request) {
         return restTemplate.postForObject(carbonEstimateUrl, request, TravelReportResponseDto.class);
     }
 
-    //미션  인증
+    // Mission certification
     public MissionImageResponse verifyMissionImage(MultiValueMap<String, Object> body) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -50,7 +50,7 @@ public class AIClient {
         return restTemplate.postForObject(verifyImageUrl, requestEntity, MissionImageResponse.class);
     }
 
-    /** 오늘의 퀴즈 요청 (GET) */
+    // Request Quiz of the Day (GET)
     public DailyQuizDto getTodayQuizFromAI() {
         return restTemplate.getForObject(quizUrl + "/today", DailyQuizDto.class);
     }

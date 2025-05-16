@@ -8,11 +8,10 @@ import java.util.List;
 @Getter
 @Setter
 public class TravelAIRequest {
-    private String city;        // 예: "Jeju"
-    private String district;    // 예: "Jeju-si" or "Random"
-    private String duration;    // 예: "3-Day Trip"
-    private String style;       // 예: "Nature"
+    private String city;        // ex: "Jeju"
+    private String district;    // ex: "Jeju-si" or "Random"
+    private String duration;    // ex: "3-Day Trip"
+    private String style;       // ex: "Nature"
 
-    //중복 선택 가능
-    private List<String> transport; // 예: "Bicycle"
+    private List<String> transport; // ex: "Bicycle"
 }

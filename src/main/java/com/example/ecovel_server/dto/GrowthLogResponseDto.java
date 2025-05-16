@@ -8,8 +8,8 @@ import lombok.Setter;
 @Setter
 @Builder
 public class GrowthLogResponseDto {
-    private String growthStage;              // 성장 단계 (예: 씨앗, 새싹)
-    private int totalQuizSuccessCount;       // 퀴즈 성공 횟수
-    private int totalMissionSuccessCount;    // 미션 성공 횟수
-    private double totalCarbonSaved;         // 누적 탄소 절감량 (g)
+    private String growthStage;              // Growth stage (e.g., seeds, sprouts)
+    private int totalQuizSuccessCount;       // Number of successful quiz
+    private int totalMissionSuccessCount;    // Number of successful missions
+    private double totalCarbonSaved;         // Accumulated carbon savings (g)
 }

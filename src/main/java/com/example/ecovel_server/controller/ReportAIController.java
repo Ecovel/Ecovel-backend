@@ -16,7 +16,7 @@ public class ReportAIController {
 
     private final AIClient aiClient;
 
-    // 여행 일정 기반 탄소 배출량 분석 요청 (AI 서버로 중계)
+    // Request for schedule-based carbon emissions analysis (translated to AI server)
     @PostMapping("/estimate")
     public ApiResponse<TravelReportResponseDto> getCarbonEstimate(@RequestBody CarbonEstimateRequest request) {
         return ApiResponse.success(aiClient.getCarbonEstimate(request));

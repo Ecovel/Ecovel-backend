@@ -21,16 +21,16 @@ public class TravelAIResponse {
         private Integer publicTime;
         private Integer carTime;
 
-        private Double latitude;  // 위도 추가
-        private Double longitude; // 경도 추가
+        private Double latitude;
+        private Double longitude;
     }
 
     @Getter
     @Setter
     public static class TravelAIDay {
         private String day;                     // "DAY 1"
-        private List<TravelAIPlace> places;     // 해당 날짜의 장소들
+        private List<TravelAIPlace> places;     // places on that date
     }
 
-    private List<TravelAIDay> scheduleList;     // DAY별 일정 전체
+    private List<TravelAIDay> scheduleList;     // Full schedule by DAY
 }

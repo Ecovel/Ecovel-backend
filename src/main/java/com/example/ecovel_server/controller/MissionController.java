@@ -21,7 +21,7 @@ public class MissionController {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
 
-    // 1. 사진 인증 업로드
+    // 1. Upload photo authentication
     @PostMapping("/{planId}/verify")
     public ResponseEntity<ApiResponse<MissionResultResponse>> uploadMissionImage(
             @PathVariable Long planId,
@@ -37,7 +37,7 @@ public class MissionController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    // 2. 인증 결과 단건 조회
+    // 2. Check Authentication Results Single
     @GetMapping("/{planId}/status")
     public ResponseEntity<ApiResponse<MissionResultResponse>> getMissionStatus(
             @PathVariable Long planId,
@@ -48,7 +48,7 @@ public class MissionController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    // 3. 인증 히스토리 전체 조회
+    // 3. Full authentication history inquiry
     @GetMapping("/history")
     public ResponseEntity<ApiResponse<List<MissionResultResponse>>> getMissionHistory(
             @RequestParam("planId") Long planId
@@ -57,27 +57,27 @@ public class MissionController {
         return ResponseEntity.ok(ApiResponse.success(history));
     }
 
-    // 4. 여행 시작 → 상태: PLANNED → ONGOING
+    // 4.  PLANNED → ONGOING
     @PostMapping("/start")
     public ResponseEntity<ApiResponse<String>> startMission(@RequestParam("planId") Long planId) {
         missionService.startMission(planId);
-        return ResponseEntity.ok(ApiResponse.success("여행이 시작되었습니다."));
+        return ResponseEntity.ok(ApiResponse.success("The journey has begun."));
     }
 
-    // 5. 여행 완료 처리 → 상태: ONGOING → COMPLETED
+    // 5. ONGOING → COMPLETED
     @PostMapping("/complete")
     public ResponseEntity<ApiResponse<String>> completeMission(@RequestParam("planId") Long planId) {
         missionService.completeMission(planId);
-        return ResponseEntity.ok(ApiResponse.success("여행이 완료되었습니다."));
+        return ResponseEntity.ok(ApiResponse.success("The trip has been completed."));
     }
 
-    // 6. 예정된 여행 조회 → PLANNED
+    // 6. PLANNED
     @GetMapping("/scheduled")
     public ResponseEntity<ApiResponse<List<FavoriteTravelResponse>>> getScheduled(
             @RequestHeader("Authorization") String token) {
         String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
         Long userId = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("사용자 없음"))
+                .orElseThrow(() -> new RuntimeException("no user"))
                 .getId();
 
         return ResponseEntity.ok(ApiResponse.success(
@@ -85,13 +85,13 @@ public class MissionController {
         ));
     }
 
-    // 7. 진행 중인 여행 조회 → ONGOING
+    // 7. ONGOING
     @GetMapping("/ongoing")
     public ResponseEntity<ApiResponse<List<FavoriteTravelResponse>>> getOngoing(
             @RequestHeader("Authorization") String token) {
         String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
         Long userId = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("사용자 없음"))
+                .orElseThrow(() -> new RuntimeException("no user"))
                 .getId();
 
         return ResponseEntity.ok(ApiResponse.success(
@@ -99,13 +99,13 @@ public class MissionController {
         ));
     }
 
-    // 8. 완료된 여행 조회 → COMPLETED
+    // 8. COMPLETED
     @GetMapping("/completed")
     public ResponseEntity<ApiResponse<List<FavoriteTravelResponse>>> getCompleted(
             @RequestHeader("Authorization") String token) {
         String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
         Long userId = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("사용자 없음"))
+                .orElseThrow(() -> new RuntimeException("no user"))
                 .getId();
 
         return ResponseEntity.ok(ApiResponse.success(
@@ -113,7 +113,7 @@ public class MissionController {
         ));
     }
 
-    // 위치 정보
+    // location information
     @GetMapping("/{planId}/locations")
     public ResponseEntity<ApiResponse<List<MissionLocationResponseDto>>> getMissionLocations(
             @PathVariable Long planId
@@ -122,7 +122,7 @@ public class MissionController {
         return ResponseEntity.ok(ApiResponse.success(locations));
     }
 
-    // 하루 단위의 미션 날짜와 인증 여부 확인
+    // Check daily mission dates and certification
     @GetMapping("/{planId}/today-status")
     public ResponseEntity<ApiResponse<TodayMissionStatusResponseDto>> getTodayStatus(
             @PathVariable Long planId
@@ -131,7 +131,7 @@ public class MissionController {
         return ResponseEntity.ok(ApiResponse.success(status));
     }
 
-    //하루 단위 미션 내용
+    //The contents of the daily mission
     @GetMapping("/{planId}/today")
     public ResponseEntity<ApiResponse<TodayMissionContentResponseDto>> getTodayMissionContent(
             @PathVariable Long planId

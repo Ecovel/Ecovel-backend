@@ -39,9 +39,9 @@ public class UserController {
     public ApiResponse<String> checkEmail(@RequestParam String email) {
         boolean exists = userService.checkEmail(email);
         if (exists) {
-            return ApiResponse.error("이미 있는 이메일입니다.");
+            return ApiResponse.error("It's an e-mail I already have.");
         } else {
-            return ApiResponse.success("사용 가능한 이메일입니다.");
+            return ApiResponse.success("This is an email you can use.");
         }
     }
 
@@ -49,13 +49,13 @@ public class UserController {
     public ApiResponse<String> checkNickname(@RequestParam String nickname) {
         boolean exists = userService.checkNickname(nickname);
         if (exists) {
-            return ApiResponse.error("이미 있는 닉네임입니다.");
+            return ApiResponse.error("It's a nickname that already exists.");
         } else {
-            return ApiResponse.success("사용 가능한 닉네임입니다.");
+            return ApiResponse.success("It's a nickname that you can use.");
         }
     }
 
-    // userId 조회
+    // userId
     @GetMapping("/me")
     public ApiResponse<UserInfoResponse> getUserInfo(@RequestHeader("Authorization") String token) {
         try {
@@ -71,7 +71,7 @@ public class UserController {
 
             return ApiResponse.success(userInfo);
         } catch (Exception e) {
-            return ApiResponse.error("유저 정보 조회 실패: " + e.getMessage());
+            return ApiResponse.error("User Information Inquiry Failed: " + e.getMessage());
         }
     }
 }

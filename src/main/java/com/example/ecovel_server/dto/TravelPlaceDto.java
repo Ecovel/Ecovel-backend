@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class TravelPlaceDto {
-    private String name; //이름
+    private String name;
 
     private String imageUrl;
 

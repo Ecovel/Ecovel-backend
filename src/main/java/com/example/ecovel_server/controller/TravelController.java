@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController //JSON 기반 REST API 컨트롤러임을 명시
+@RestController
 @RequestMapping("/travel")
 @RequiredArgsConstructor
 public class TravelController {
@@ -20,7 +20,7 @@ public class TravelController {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
 
-    // 1. 여행 추천
+    // 1. Travel recommendations
     @PostMapping("/recommend")
     public ResponseEntity<ApiResponse<TravelRecommendResponse>> recommend(
             @RequestBody TravelRecommendRequest request,
@@ -28,7 +28,7 @@ public class TravelController {
         try {
             String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
             Long userId = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("사용자 없음"))
+                    .orElseThrow(() -> new RuntimeException("no user"))
                     .getId();
 
             TravelRecommendResponse response = travelService.recommendTravelPlan(request, userId);
@@ -38,7 +38,7 @@ public class TravelController {
         }
     }
 
-    // 2. 옵션 제공
+    // 2. Provide options
     @GetMapping("/options")
     public ResponseEntity<ApiResponse<TravelOptionResponse>> getOptions() {
         try {
@@ -49,7 +49,7 @@ public class TravelController {
         }
     }
 
-    // 3. 여행 상세 조회
+    // 3. Travel details inquiry
     @GetMapping("/details/{planId}")
     public ResponseEntity<ApiResponse<TravelRecommendResponse>> getTravelDetails(
             @PathVariable Long planId,
@@ -57,7 +57,7 @@ public class TravelController {
         try {
             String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
             Long userId = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("사용자 없음"))
+                    .orElseThrow(() -> new RuntimeException("no user"))
                     .getId();
 
             TravelRecommendResponse response = travelService.getTravelPlanDetails(planId, userId);
@@ -68,7 +68,7 @@ public class TravelController {
     }
 
 
-    // 4. 시/도별 구 목록 조회
+    // 4. Check list of city/province districts
     @GetMapping("/districts")
     public ResponseEntity<ApiResponse<DistrictResponse>> getDistricts(@RequestParam String city) {
         try {
@@ -79,19 +79,19 @@ public class TravelController {
         }
     }
 
-    // 여행 상태 변경 API 추가
+    // Add Travel Status Change API
     @PostMapping("/status/{planId}")
     public ResponseEntity<ApiResponse<String>> updateStatus(@PathVariable Long planId,
                                                             @RequestParam TravelStatus status) {
         try {
             travelService.updatePlanStatus(planId, status);
-            return ResponseEntity.ok(ApiResponse.success("여행 상태 업데이트 완료"));
+            return ResponseEntity.ok(ApiResponse.success("Travel Status Update Completed"));
         } catch (Exception e) {
             return ResponseEntity.ok(ApiResponse.error(e.getMessage()));
         }
     }
 
-    //상태별 여행 목록 조회 API 추가
+    // Add Travel List Inquiry API by Status
     @GetMapping("/status")
     public ResponseEntity<ApiResponse<List<FavoriteTravelResponse>>> getByStatus(@RequestParam TravelStatus status) {
         try {
@@ -102,7 +102,7 @@ public class TravelController {
         }
     }
 
-    // 5. 즐겨찾기 추가
+    // Add Favorite
     @PostMapping("/favorites")
     public ResponseEntity<ApiResponse<String>> addFavorite(
             @RequestHeader("Authorization") String token,
@@ -110,23 +110,23 @@ public class TravelController {
         try {
             String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
             Long userId = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("사용자 없음"))
+                    .orElseThrow(() -> new RuntimeException("no user"))
                     .getId();
 
             travelService.addFavorite(planId, userId);
-            return ResponseEntity.ok(ApiResponse.success("즐겨찾기 추가 완료"));
+            return ResponseEntity.ok(ApiResponse.success("Finished adding favorites"));
         } catch (Exception e) {
             return ResponseEntity.ok(ApiResponse.error(e.getMessage()));
         }
     }
 
-    // 6. 즐겨찾기 전체 조회
+    // Full Favorite View
     @GetMapping("/favorites")
     public ResponseEntity<ApiResponse<List<FavoriteTravelResponse>>> getFavorites(@RequestHeader("Authorization") String token) {
         try {
             String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
             Long userId = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("사용자 정보 없음"))
+                    .orElseThrow(() -> new RuntimeException("no user"))
                     .getId();
 
             return ResponseEntity.ok(ApiResponse.success(travelService.getFavorites(userId)));
@@ -135,12 +135,12 @@ public class TravelController {
         }
     }
 
-    // 7. 즐겨찾기 삭제
+    // Delete Favorite
     @DeleteMapping("/favorites/{favoriteId}")
     public ResponseEntity<ApiResponse<String>> deleteFavorite(@PathVariable Long favoriteId) {
         try {
             travelService.deleteFavorite(favoriteId);
-            return ResponseEntity.ok(ApiResponse.success("즐겨찾기 삭제 완료"));
+            return ResponseEntity.ok(ApiResponse.success("Finished deleting favorites"));
         } catch (Exception e) {
             return ResponseEntity.ok(ApiResponse.error(e.getMessage()));
         }
